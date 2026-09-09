@@ -33,8 +33,7 @@ def get_sql_from_llm(question: str) -> str:
 
                             Customer question: {question}
 
-                            The logged-in user is customer_id = 1. Only return data for that customer.
-                            
+                            The logged-in user is customer_id = 1. 
                             Return only the SQL statement. Do not include Markdown fences, comments, explanations, or alternative queries.
                         """
     message = anthropic_client.messages.create(
