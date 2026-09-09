@@ -111,6 +111,18 @@ def get_conn() -> sqlite3.Connection:
     """
     return sqlite3.connect(DB_PATH)
 
+def run_sql(sql: str) -> list[tuple]:
+    """Run the SQL against the database and return the rows.
+
+    Deliberately no validation, no authorisation, no logging: flaw #3.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(sql)
+    rows = cur.fetchall()
+    conn.commit()
+    conn.close()
+    return rows
 
 def seed() -> None:
     """Drop every table and recreate it with fresh synthetic data.
