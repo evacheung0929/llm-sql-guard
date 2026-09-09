@@ -7,13 +7,10 @@ This is a demonstartion of a vulnerable system
 '''
 
 from .db import run_sql
+from .llm import get_sql_from_llm
 # python -m app.db in terminal tells us what is in the table if forgotten
 
-usr_question = "SELECT * FROM customers"
 def run_vulnerable(question: str) -> dict:
-    sql_test = question
-    rows = run_sql(sql_test)
-    print(rows)
-    return rows
-
-run_vulnerable(usr_question)
+    sql = get_sql_from_llm(question)
+    rows = run_sql(sql)
+    return {"sql": sql, "rows": rows, "error": None}

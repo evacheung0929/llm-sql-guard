@@ -5,6 +5,8 @@ This piece of code talks to calude api, returninig SQL
 '''
 
 import os
+import re
+
 from dotenv import load_dotenv
 import anthropic
 
@@ -24,7 +26,7 @@ audit_log(id, ts, actor, action)
 
 
 def get_sql_from_llm(question: str) -> str:
-    message_content = f"""  You are a SQL assistant for a retail bank's customer app. Here to help to answer customer's question
+    message_content = f"""  You are a SQL assistant for a retail bank's customer app with SQLite. Here to help to answer customer's question
 
                             Use only these tables and columns:
                             {SQL_SCHEMA}
@@ -32,6 +34,7 @@ def get_sql_from_llm(question: str) -> str:
                             Customer question: {question}
 
                             The logged-in user is customer_id = 1. Only return data for that customer.
+                            
                             Return only the SQL statement. Do not include Markdown fences, comments, explanations, or alternative queries.
                         """
     message = anthropic_client.messages.create(
@@ -39,6 +42,8 @@ def get_sql_from_llm(question: str) -> str:
         messages=[{"role": "user", "content": message_content}],
         max_tokens=100,
     )
-    print(message.content[0].text)
-    return message.content[0].text
-get_sql_from_llm('What is my account balance?')
+    response = message.content[0].text.strip()
+    match = re.search(r"```(?:sql)?\s*(.*?)```", response, re.IGNORECASE | re.DOTALL)
+    sql = (match.group(1) if match else response).strip()
+    print(sql)
+    return sql
